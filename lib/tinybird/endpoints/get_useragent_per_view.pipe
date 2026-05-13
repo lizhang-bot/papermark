@@ -1,0 +1,16 @@
+VERSION 3
+
+NODE endpoint
+SQL >
+    %
+    SELECT
+        country,
+        city,
+        browser,
+        os,
+        device
+    FROM
+        pm_click_events__v1
+    WHERE
+        view_id = {{ String(viewId, required=True) }}
+    LIMIT 1

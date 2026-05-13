@@ -1,0 +1,525 @@
+/* 
+ * Notion-style CSS Grid layout.
+ * The grid lives on .notion-page-content-inner (the <article> rendered by react-notion-x)
+ * so individual blocks become grid items.
+ * Named lines: full-start | margin | content-start | 708px | content-end | margin | full-end
+ */
+:root {
+  --notion-max-width: 990px;
+  --notion-content-width: 708px;
+  --notion-margin-width: minmax(96px, 1fr);
+}
+
+.dark-mode {
+  --bg-color: rgb(25, 25, 25);
+}
+
+.notion-page-content {
+  max-width: 100%;
+}
+
+.notion-page-content-inner {
+  display: grid;
+  grid-template-columns:
+    [full-start] var(--notion-margin-width)
+    [content-start] minmax(auto, var(--notion-content-width))
+    [content-end] var(--notion-margin-width)
+    [full-end];
+  max-width: 100%;
+}
+
+.notion-page-content-inner > * {
+  grid-column: content;
+  min-width: 0;
+}
+
+.notion-page-content-inner > .notion-collection {
+  grid-column: full;
+  overflow-x: auto;
+}
+
+.notion-collection .notion-table-cell {
+  flex-shrink: 0;
+}
+
+@media (min-width: 769px) {
+  .notion-collection .notion-table {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .notion-collection .notion-table-view {
+    padding-left: max(
+      96px,
+      calc((100% - var(--notion-content-width)) / 2)
+    ) !important;
+    padding-right: max(
+      96px,
+      calc((100% - var(--notion-content-width)) / 2)
+    ) !important;
+    min-width: 100% !important;
+    width: max-content;
+    float: none !important;
+  }
+}
+
+/* Simple tables: left-aligned with content, extends to right edge of page.
+   Scrolls horizontally only if the table is wider than the available space. */
+.notion-page-content-inner > .notion-simple-table {
+  grid-column: content-start / -1;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.notion-simple-table > tbody {
+  display: table;
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: max-content;
+}
+
+/* Match Notion's cell padding with visible borders */
+.notion-simple-table td {
+  padding: 8px 10px;
+  border: none;
+  border-bottom: 1px solid rgb(210, 210, 208);
+  border-right: 1px solid rgb(210, 210, 208);
+}
+
+.notion-simple-table tr:first-child td {
+  border-top: 1px solid rgb(210, 210, 208);
+}
+
+.notion-simple-table td:first-child {
+  border-left: 1px solid rgb(210, 210, 208);
+}
+
+.notion-simple-table-header-row td,
+.notion-simple-table-header-cell {
+  background: rgb(247, 246, 243);
+  font-weight: 500;
+}
+
+/* Dark mode: visible borders for simple tables */
+.dark .notion-simple-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+  border-right-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .notion-simple-table tr:first-child td {
+  border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .notion-simple-table td:first-child {
+  border-left-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .notion-simple-table-header-row td,
+.dark .notion-simple-table-header-cell {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* On mobile, shrink margins and let react-notion-x handle table sizing natively */
+@media (max-width: 768px) {
+  .notion-page.notion-full-page,
+  .notion-page-content-inner {
+    --notion-margin-width: 24px;
+  }
+
+  .notion-page-content-inner > .notion-simple-table {
+    grid-column: content;
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* Disable user selection for all text content (default) */
+.notion-page,
+.notion-text,
+.notion-h1,
+.notion-h2,
+.notion-h3,
+.notion-h4,
+.notion-h5,
+.notion-h6,
+.notion-header,
+.notion-sub_header,
+.notion-sub_sub_header,
+.notion-quote,
+.notion-callout,
+.notion-toggle,
+.notion-list,
+.notion-numbered-list,
+.notion-to_do,
+.notion-code,
+.notion-simple-table,
+.notion-table,
+.notion-column-list,
+.notion-bookmark,
+.notion-embed,
+.notion-database {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable user selection when text selection is allowed */
+.notion-text-selection-enabled .notion-page,
+.notion-text-selection-enabled .notion-text,
+.notion-text-selection-enabled .notion-h1,
+.notion-text-selection-enabled .notion-h2,
+.notion-text-selection-enabled .notion-h3,
+.notion-text-selection-enabled .notion-h4,
+.notion-text-selection-enabled .notion-h5,
+.notion-text-selection-enabled .notion-h6,
+.notion-text-selection-enabled .notion-header,
+.notion-text-selection-enabled .notion-sub_header,
+.notion-text-selection-enabled .notion-sub_sub_header,
+.notion-text-selection-enabled .notion-quote,
+.notion-text-selection-enabled .notion-callout,
+.notion-text-selection-enabled .notion-toggle,
+.notion-text-selection-enabled .notion-list,
+.notion-text-selection-enabled .notion-numbered-list,
+.notion-text-selection-enabled .notion-to_do,
+.notion-text-selection-enabled .notion-code,
+.notion-text-selection-enabled .notion-simple-table,
+.notion-text-selection-enabled .notion-table,
+.notion-text-selection-enabled .notion-column-list,
+.notion-text-selection-enabled .notion-bookmark,
+.notion-text-selection-enabled .notion-embed,
+.notion-text-selection-enabled .notion-database {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Disable image dragging */
+.notion-image,
+.notion-asset,
+img {
+  /* Prevent long-press context menu on mobile */
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  /* Prevent image highlighting */
+  -webkit-tap-highlight-color: transparent;
+
+  /* Disable pointer events for saving */
+  pointer-events: auto;
+}
+
+/* Re-enable pointer events for links to keep them clickable */
+.notion-link,
+.notion-link *,
+a,
+a * {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ensure buttons and interactive elements remain clickable */
+button,
+input,
+select,
+textarea,
+.notion-toggle-button,
+.notion-page-icon {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Prevent page-level horizontal overflow */
+.notion-frame {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Apply the same content grid to .notion-page so icon + title align with body content */
+.notion-page.notion-full-page {
+  display: grid !important;
+  grid-template-columns:
+    [full-start] var(--notion-margin-width)
+    [content-start] minmax(auto, var(--notion-content-width))
+    [content-end] var(--notion-margin-width)
+    [full-end];
+  max-width: 100%;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.notion-page.notion-full-page > * {
+  grid-column: content;
+  min-width: 0;
+}
+
+.notion-page.notion-full-page > .notion-page-cover-wrapper,
+.notion-page.notion-full-page > .notion-page-content {
+  grid-column: full;
+}
+
+.notion-simple-table-row td {
+  vertical-align: top;
+}
+
+/* Fix react-notion-x 7.10.0 rendering tabs before collection title.
+   Notion shows the title first, then tabs — use flex ordering to match. */
+div:has(> .notion-collection-header) {
+  display: flex;
+  flex-direction: column;
+}
+
+.notion-collection-header {
+  order: -1;
+}
+
+/* Video blocks - match Notion's video layout */
+.notion-asset-wrapper video {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 4px;
+  display: block;
+  background: #000;
+}
+
+/* Ensure video containers have proper aspect ratio handling */
+.notion-asset-wrapper:has(video) {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Video iframe embeds (YouTube, Vimeo, etc.) */
+.notion-asset-wrapper iframe {
+  border-radius: 4px;
+}
+
+/* YouTube lite embed styling */
+.notion-yt-lite {
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Ensure asset wrappers for videos take full width by default */
+.notion-asset-wrapper-video {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+/* Video block specific layout - match Notion's page width behavior */
+.notion-video {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Embed blocks (external videos like Sieve, etc.) - ensure proper aspect ratio */
+.notion-asset-wrapper:has(iframe) {
+  width: 100%;
+}
+
+/* Fix for video embeds that don't have explicit dimensions */
+.notion-asset-wrapper > div[style*="padding-bottom"] {
+  width: 100%;
+}
+
+/* Ensure external embed iframes fill their container */
+.notion-asset-wrapper iframe.notion-asset-object-fit {
+  width: 100%;
+  height: 100%;
+}
+
+/* Video wrapper default aspect ratio when not specified */
+.notion-asset-wrapper
+  > div:has(> video):not([style*="padding-bottom"]):not([style*="height"]) {
+  aspect-ratio: 16 / 9;
+}
+
+/* Ensure videos without explicit sizing get proper dimensions */
+.notion-asset-wrapper video:not([style*="width"]) {
+  width: 100%;
+}
+
+.notion-asset-wrapper video:not([style*="height"]) {
+  height: auto;
+}
+
+/* 
+ * Fix for native video elements that don't have aspect ratio set by react-notion-x
+ * react-notion-x removes paddingBottom for video blocks, so we need to ensure
+ * videos maintain proper layout while loading
+ */
+.notion-asset-wrapper > div:has(> video) {
+  min-height: 200px; /* Fallback minimum height while video loads */
+}
+
+/* Once video has loaded and has natural dimensions, allow it to use those */
+.notion-asset-wrapper video[src] {
+  min-height: unset;
+}
+
+/* Responsive video handling */
+@media (max-width: 768px) {
+  .notion-asset-wrapper video,
+  .notion-asset-wrapper iframe {
+    max-width: 100%;
+  }
+
+  .notion-asset-wrapper:has(video),
+  .notion-asset-wrapper:has(iframe) {
+    max-width: calc(100vw - 2rem);
+  }
+}
+
+.notion-hr {
+  border-top: 1px solid var(--fg-color-0);
+}
+
+.notion-link {
+  display: inline-flex;
+  opacity: 1;
+  cursor: pointer;
+  border-bottom: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--fg-color-1);
+  &:hover {
+    background: #94949426;
+    border-radius: 1px;
+    box-shadow: 0 0 0 3px #94949426;
+    cursor: pointer !important;
+  }
+}
+
+.notion-link .notion-page-title-text {
+  border-bottom: 1px solid var(--fg-color-1);
+}
+
+.notion-link:has(.notion-page-title-text) {
+  border-bottom: none;
+  text-decoration: none;
+}
+
+/* Ensure the cover wrapper doesn't clip the icon */
+.notion-page-cover-wrapper {
+  overflow: visible !important;
+}
+
+/* Style page icon like actual Notion - overlapping cover, aligned with content */
+.notion-page-icon-hero {
+  margin-top: -70px !important;
+  margin-left: 0 !important;
+  left: 0 !important;
+  justify-content: flex-start !important;
+  transform: none !important;
+  overflow: visible !important;
+  position: relative;
+  z-index: 10;
+}
+
+.notion-page-icon-hero.notion-page-icon-image {
+  overflow: visible !important;
+}
+
+/* Only show arrows on page icons within clickable links */
+.notion-link .notion-page-icon-inline,
+.notion-link .notion-page-icon-span,
+.notion-page-link .notion-page-icon-inline,
+.notion-page-link .notion-page-icon-span {
+  position: relative;
+}
+
+.notion-link .notion-page-icon-inline::after,
+.notion-link .notion-page-icon-span::after,
+.notion-page-link .notion-page-icon-inline::after,
+.notion-page-link .notion-page-icon-span::after {
+  content: "";
+  position: absolute;
+  right: -0.2em;
+  bottom: 0;
+  width: 0.7em;
+  height: 0.7em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 13' fill='none'%3E%3Cpath d='M6.30826 4.43292L1.76184 8.98454C1.76176 8.98462 1.76169 8.9847 1.76161 8.98477C1.76158 8.9848 1.76156 8.98482 1.76154 8.98484C1.46068 9.28584 1.25 9.6914 1.25 10.1565C1.25 10.6117 1.45865 11.0119 1.73417 11.2886C2.01014 11.5658 2.41107 11.7773 2.87078 11.7773C3.34169 11.7773 3.73758 11.5617 4.03477 11.2733L4.03482 11.2734L4.04244 11.2657L8.58864 6.72474V8.667C8.58864 9.51956 9.22729 10.2935 10.1521 10.2935C11.0528 10.2935 11.75 9.54534 11.75 8.66127V2.92671C11.75 2.48722 11.5981 2.06381 11.2838 1.74808C10.9689 1.43182 10.5446 1.27728 10.1006 1.27728H4.36028C3.46161 1.27728 2.72804 1.97749 2.72804 2.86942C2.72804 3.79734 3.51104 4.43292 4.35455 4.43292H6.30826Z' fill='%233E3C38' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.notion-toggle:has(.notion-h1) {
+  margin-top: 2rem;
+}
+
+/* Fix column layout to be evenly spaced */
+.notion-row .notion-column {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Ensure assets in columns take full width of their column */
+.notion-column .notion-asset-wrapper {
+  width: 100% !important;
+  max-width: 100%;
+}
+
+/* Fix video sizing within columns */
+.notion-column .notion-asset-wrapper video {
+  width: 100%;
+  height: auto;
+}
+
+/* Fix iframe sizing within columns */
+.notion-column .notion-asset-wrapper iframe {
+  width: 100%;
+}
+
+/* Ensure the inner div of asset wrapper in columns expands properly */
+.notion-column .notion-asset-wrapper > div {
+  width: 100% !important;
+}
+
+/* Images in columns should also take full width */
+.notion-column .notion-asset-wrapper img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Ensure notion-row displays as proper flexbox */
+.notion-row {
+  display: flex !important;
+  flex-wrap: nowrap;
+  width: 100%;
+  gap: 0;
+}
+
+/* Responsive: stack columns on small screens */
+@media (max-width: 640px) {
+  .notion-row {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .notion-row > .notion-column {
+    width: 100% !important;
+    flex: 1 1 100% !important;
+  }
+}
+
+/* Override any inline width styles on asset wrappers in columns */
+.notion-column .notion-asset-wrapper[style*="width"] {
+  width: 100% !important;
+}
+
+/* Handle asset wrapper inner positioning div */
+.notion-column .notion-asset-wrapper > div[style] {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Ensure lazy image wrappers in columns expand properly */
+.notion-column .lazy-image-wrapper {
+  width: 100% !important;
+}

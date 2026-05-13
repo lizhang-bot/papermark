@@ -1,0 +1,102 @@
+model Team {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String?        @unique // Optional human-readable identifier (e.g. "acme"), used for SSO login
+  users         UserTeam[]
+  documents     Document[]
+  folders       Folder[]
+  domains       Domain[]
+  invitations   Invitation[]
+  sentEmails    SentEmail[]
+  brand         Brand?
+  datarooms     Dataroom[]
+  agreements    Agreement[]
+  viewerGroups  ViewerGroup[]
+  visitorGroups VisitorGroup[]
+  viewers       Viewer[]
+
+  permissionGroups  PermissionGroup[]
+  linkPresets       LinkPreset[] // Link presets for the team
+  incomingWebhooks  IncomingWebhook[]
+  restrictedTokens  RestrictedToken[]
+  webhooks          Webhook[]
+  conversations     Conversation[]
+  dataroomFaqItems  DataroomFaqItem[]
+  uploadedDocuments DocumentUpload[]
+  Tag               Tag[]
+  annotations       DocumentAnnotation[] // Annotations created by team members
+
+  installedIntegrations InstalledIntegration[]
+
+  links     Link[]
+  views     View[]
+  workflows Workflow[]
+
+  plan           String    @default("free")
+  stripeId       String?   @unique // Stripe customer ID
+  subscriptionId String?   @unique // Stripe subscription ID
+  startsAt       DateTime? // Stripe subscription start date
+  endsAt         DateTime? // Stripe subscription end date
+  pausedAt       DateTime? // When the subscription was paused
+  pauseStartsAt  DateTime? // When the pause period starts
+  pauseEndsAt    DateTime? // When the pause period ends
+  cancelledAt    DateTime? // When the subscription was cancelled
+
+  // Trial overrides — when set, these take precedence over the implicit
+  // "+drtrial in plan + 7 days from team/dataroom creation" computation.
+  // Populated when a trial is manually extended via the admin script.
+  trialStartedAt     DateTime? // When the trial actually started
+  trialEndsAt        DateTime? // Authoritative trial end timestamp (null = use legacy 7d-from-creation)
+  trialReminderRunId String?   // Trigger.dev run id for the 24h reminder email
+  trialExpiredRunId  String?   // Trigger.dev run id for the trial-expired task
+
+  limits Json? // Plan limits // {datarooms: 1, users: 1, domains: 1, customDomainOnPro: boolean, customDomainInDataroom: boolean}
+
+  // team settings
+  enableExcelAdvancedMode  Boolean @default(false) // Enable Excel advanced mode for all documents in the team
+  replicateDataroomFolders Boolean @default(true) // Replicate dataroom folder structure in "All Documents"
+  timezone                 String  @default("Etc/UTC") // Team-wide timezone for analytics display (IANA timezone identifier)
+
+  // SSO (SAML/SCIM via BoxyHQ Jackson)
+  ssoEnabled     Boolean   @default(false) // Feature flag: team has access to SSO
+  ssoEmailDomain String?   @unique // Email domain enforced for SSO (e.g. "acme.com")
+  ssoEnforcedAt  DateTime? // When set, all users with this domain MUST use SSO
+
+  // Survey data (stored as JSON for flexibility)
+  surveyData Json? // { dealType?: string, dealSize?: string, ... }
+
+  // AI agents
+  agentsEnabled Boolean @default(false) // Enable AI agents for the team
+  vectorStoreId String? // OpenAI vector store ID for team-level document search
+  chats         Chat[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ignoredDomains  String[] // Domains that are ignored for the team
+  globalBlockList String[] // Email and domains that are blocked for the team
+
+  notificationPreferences NotificationPreference[]
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+model UserTeam {
+  role   Role   @default(MEMBER)
+  status String @default("ACTIVE")
+  userId String
+  teamId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  blockedAt               DateTime? // When the user was blocked
+  notificationPreferences Json? // Format: { yearInReview: { "enabled": false } }
+
+  @@id([userId, teamId])
+  @@index([userId])
+  @@index([teamId])
+}
